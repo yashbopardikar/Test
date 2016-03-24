@@ -1,0 +1,144 @@
+import java.io.BufferedReader;
+import java.lang.reflect.Array;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.Collection;
+import java.util.Collections;
+import java.util.Random;
+import java.util.Scanner;
+
+public class Genetic {
+	static ArrayList<Integer> population = new ArrayList<>();
+	static ArrayList<Double> funt = new ArrayList<>();
+	static ArrayList<Double> normadFun = new ArrayList<>();
+	static ArrayList<Double> commuForm = new ArrayList<>();
+public static void main(String[] args) {
+	
+Genetic ge = new Genetic();	
+System.out.println("How many generations?");
+Scanner in = new Scanner(System.in);
+Integer generations = in.nextInt();
+
+ge.randomNumGenerator(255);
+for(int i=0;i<generations;i++){
+ge.function(population);
+ge.normedForm(funt);
+ge.cummuNormed(normadFun);
+Integer parent1 = ge.parentFinder(commuForm);
+System.out.println("parent1:  "+ parent1);
+Integer parent2 = ge.parentFinder(commuForm);
+System.out.println("parent2:  "+ parent2);
+ge.crossOver(parent1, parent2);
+}
+//System.out.println(funt.size()+" "+normadFun.size()+" "+commuForm.size());
+ge.fittestPerson();
+}
+
+public void randomNumGenerator (Integer range){
+	Random rand = new Random();
+	for(int i=1;i<9;i++){
+	int  n = rand.nextInt(2147483647);
+	population.add(n);
+		}
+	}
+public void function (ArrayList<Integer> pop){
+	funt.clear();
+	for(int i=0;i<pop.size();i++){
+		double value = Math.sin(pop.get(i) * Math.PI/256);
+		funt.add(value);
+	}
+		System.out.println("F(x): " + funt);
+}
+
+public void normedForm (ArrayList<Double> func){
+		normadFun.clear();
+		double sum=0;
+		for(int i=0;i<func.size();i++){
+			sum  = sum + func.get(i);
+		}
+		for(int i=0;i<funt.size();i++){
+			double a = funt.get(i)/sum;
+			normadFun.add(a);
+		}
+		System.out.println("sum:" + sum);
+		System.out.println("NormedF (x)" + normadFun);
+	}
+
+public void cummuNormed (ArrayList<Double> normedForm){
+	commuForm.clear();
+	double sum=0;
+	for(int i=0;i<normedForm.size();i++){
+		sum = sum + normedForm.get(i);
+		commuForm.add(sum);
+	}
+//	System.out.println(commuForm);
+}
+public Integer parentFinder (ArrayList<Double> commulative){
+	double selector = Math.random();
+//	System.out.println("random value" + selector);
+	for(int i=0;i<commulative.size();i++){
+		if(commulative.get(i)>selector){
+			//System.out.println("Index" + i);
+			return population.get(i);
+		}
+	}
+	return null;
+}
+
+public Integer crossOver (Integer parent1, Integer parent2){
+	String binParent1 = Integer.toBinaryString(parent1);
+	String binParent2 = Integer.toBinaryString(parent2);
+	System.out.println("binary Parent1: " + binParent1);
+	System.out.println("binary Parent2: " + binParent2);
+	Random rand = new Random();
+	int  n = rand.nextInt(30);
+	System.out.println(n);
+	Integer mask1 = ((int)Math.pow(2, n)-1);
+	Integer mask2 = ~mask1;
+	Integer Ader = parent1 & mask1;
+	Integer Bder = parent2 & mask1;
+	System.out.println("Ader: "+ Ader+ " Bder: "+ Bder);
+	Integer NewChild1 = (parent1 & mask2) + Bder;
+	Integer NewChild2 = (parent2 & mask2) + Ader;
+//	System.out.println("NewChild1: "+ NewChild1+ " NewChild2: "+ NewChild2);
+//	System.out.println("NewChild1: "+ Integer.toBinaryString(NewChild1)+ " NewChild2: "+ Integer.toBinaryString(NewChild2));
+	Integer Index_of_parent1=0;
+	Integer Index_of_parent2=0;
+	System.out.println(population);
+	for(int i=0;i<population.size();i++){
+		if(population.get(i)== parent1){
+			Index_of_parent1=i;
+		}
+	}
+	population.set(Index_of_parent1, NewChild1);
+	for(int j=0;j<population.size();j++){
+		if(population.get(j)== parent2){
+			Index_of_parent2=j;
+		}	
+	}
+	population.set(Index_of_parent2, NewChild2);
+	function(population);
+	System.out.println(funt);
+	System.out.println(population);
+	
+	return null;
+	}
+
+public Integer fittestPerson(){
+Double fittest =  Collections.max(funt);
+Integer Index_of_fittest= 0;
+for(int j=0;j<funt.size();j++){
+	if(funt.get(j)== fittest){
+		Index_of_fittest=j;
+	}	
+}
+System.out.println("Fittest F(x)" + fittest);
+System.out.println("Fittest person is" + population.get(Index_of_fittest));
+return null;
+
+}
+
+	
+}	
+
+
